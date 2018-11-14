@@ -39,22 +39,22 @@ target_link_libraries(${LIB_NAME}
 
 if(WIN32)
     set(dxcompiler_name "dxcompiler.dll")
+
+    set(dxcompiler_output "${SC_BUILD_DIR}/Bin/${CMAKE_CFG_INTDIR}/${dxcompiler_name}")
+    add_custom_command(OUTPUT ${dxcompiler_output}
+        COMMAND ${CMAKE_COMMAND} -E copy
+            ${SC_BUILD_DIR}/External/DirectXShaderCompiler/${CMAKE_CFG_INTDIR}/bin/${dxcompiler_name}
+            ${SC_BUILD_DIR}/Bin/${CMAKE_CFG_INTDIR}/${dxcompiler_name}
+        COMMENT "Copying dxcompiler...")
+    add_custom_target(CopyDxcompiler DEPENDS ${dxcompiler_output})
+    add_dependencies(CopyDxcompiler dxcompiler)
+
+    set_target_properties(CopyDxcompiler PROPERTIES FOLDER "Core")
+    add_dependencies(${LIB_NAME} CopyDxcompiler)
 else()
-    set(dxcompiler_name "dxcompiler.so")
+    add_dependencies(${LIB_NAME} dxcompiler)
 endif()
 
-set(dxcompiler_output "${SC_BUILD_DIR}/Bin/${CMAKE_CFG_INTDIR}/${dxcompiler_name}")
-add_custom_command(OUTPUT ${dxcompiler_output}
-    COMMAND ${CMAKE_COMMAND} -E copy
-        ${SC_BUILD_DIR}/External/DirectXShaderCompiler/${CMAKE_CFG_INTDIR}/bin/${dxcompiler_name}
-        ${SC_BUILD_DIR}/Bin/${CMAKE_CFG_INTDIR}/${dxcompiler_name}
-    COMMENT "Copying dxcompiler...")
-add_custom_target(CopyDxcompiler DEPENDS ${dxcompiler_output})
-add_dependencies(CopyDxcompiler dxcompiler)
-
-set_target_properties(CopyDxcompiler PROPERTIES FOLDER "Core")
-
 add_dependencies(${LIB_NAME} spirv-cross-core spirv-cross-glsl spirv-cross-hlsl spirv-cross-msl)
-add_dependencies(${LIB_NAME} CopyDxcompiler)
 
 set_target_properties(${LIB_NAME} PROPERTIES FOLDER "Core")
